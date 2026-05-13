@@ -39,16 +39,34 @@ Create `environments/dev/`, `environments/staging/`, and `environments/prod/` �
 ### 5. Close the Loop on Autoscaling
 Connect the existing `scale_up` and `scale_down` policies to **CloudWatch CPU alarms**. Currently the policies exist but nothing triggers them — finishing this demonstrates attention to detail and a complete, working system.
 
+### 6. Add a Ruby + React Application
+Deploy a small application in the same repo that makes the multi-environment infrastructure visible and tangible.
+
+**Ruby (Sinatra) backend** — reads EC2 instance metadata and exposes it via a simple API:
+```
+GET /api/info → { environment, instance_id, availability_zone, region }
+```
+
+**React frontend** — fetches from the API and renders an environment dashboard showing which environment you're hitting and what instance is serving the request.
+
+The `launch_template.tf` user_data script is updated to:
+1. Install Ruby + Bundler and start Sinatra on a local port
+2. Install Node.js, build the React app to static files
+3. Configure Apache to serve the React build and proxy `/api/*` to Sinatra
+
 ---
 
 ## Target Folder Structure
 
 ```
 terraform-concepts-project/
+├── app/
+│   ├── backend/            # Sinatra API (server.rb, Gemfile)
+│   └── frontend/           # React app (src/App.jsx, package.json)
 ├── bootstrap/              # S3 + DynamoDB for remote state
 ├── modules/
 │   ├── networking/         # VPC, subnets, IGW, route tables
-│   └── web-cluster/        # ALB, ASG, security groups (current code)
+│   └── web-cluster/        # ALB, ASG, security groups, CloudWatch
 └── environments/
     ├── dev/
     ├── staging/
@@ -66,6 +84,7 @@ terraform-concepts-project/
 | **Proper VPC networking** | Public/private subnet split is expected at any real company |
 | **Closed-loop autoscaling** | Completes the scaling story — policies that actually fire |
 | **Multi-environment** | Demonstrates you think about the full SDLC, not just "make it work once" |
+| **Ruby + React app** | Makes the infrastructure tangible — hit dev vs prod ALB and see different environments live |
 
 ---
 
