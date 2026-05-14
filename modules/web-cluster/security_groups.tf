@@ -27,7 +27,7 @@ resource "aws_security_group" "instance_sg" {
     from_port   = var.server_port
     to_port     = var.server_port
     protocol    = "tcp"
-    cidr_blocks = [aws_security_group.alb_sg.id]
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   egress {

@@ -10,31 +10,62 @@ resource "aws_launch_template" "app" {
   }
 
   user_data = base64encode(<<-EOF
-              #!/bin/bash
-              # Update the instance and install necessary packages
-              yum update -y
-              yum install -y httpd wget unzip
-              
-              # Start Apache and enable it to start on boot
-              systemctl start httpd
-              systemctl enable httpd
-              
-              # Navigate to the web root directory
-              cd /var/www/html
-              
-              # Download a CSS template directly
-              wget https://www.free-css.com/assets/files/free-css-templates/download/page284/built-better.zip
-              
-              # Unzip the template and move the files to the web root
-              unzip built-better.zip -d /var/www/html/
-              mv /var/www/html/html/* /var/www/html/
-              
-              # Clean up unnecessary files
-              rm -r /var/www/html/html
-              rm built-better.zip
-              
-              # Restart Apache to apply changes
-              systemctl restart httpd
-              EOF
+        #!/bin/bash
+        export APP_ENV="${var.environment}"
+
+        # Update the instance and install necessary packages
+        yum update -y
+
+        # Install development tools and dependencies
+        yum groupinstall -y "Development Tools"
+        yum install -y curl wget git tar
+        yum install -y httpd wget unzip
+        
+        # Install NodeJS
+        curl -sL https://rpm.nodesource.com/setup_18.x | bash -
+        yum install -y nodejs
+
+        # Verify installation
+        node -v
+        npm -v
+
+        # Install Ruby and Bundler
+        amazon-linux-extras install -y ruby3.2
+        gem install bundler
+
+        # Verify installation
+        ruby --version
+        bundle --version
+
+        # Start Apache and enable it to start on boot
+        systemctl start httpd
+        systemctl enable httpd
+
+        # Clone the repo
+        git clone https://github.com/oselmo/terraform-concepts-project /opt/app
+
+        # Install Ruby deps
+        cd /opt/app/app/backend
+        bundle install
+
+        # build React
+        cd /opt/app/app/frontend
+        npm run build
+        # outputs static files to /opt/app/app/frontend/dist
+
+        # Start Sinatra in background
+        cd /opt/app/app/backend
+        ruby server.rb &
+
+        # Point Apache at the React build
+        cp -r /opt/app/app/frontend/dist/* /var/www/html/
+
+        # configure Apache
+        echo "ProxyPass /api http://localhost:4567/api
+        ProxyPassReverse /api http://localhost:4567/api" >> /etc/httpd/conf/httpd.conf
+
+        systemctl restart httpd
+
+        EOF
   )
 }

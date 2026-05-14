@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+
+# The Sinatra web framework
+gem 'sinatra'
+gem 'json'
+gem 'net'
