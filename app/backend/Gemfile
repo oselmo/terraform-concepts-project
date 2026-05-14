@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '~> 2.6'
 # The Sinatra web framework
-gem 'sinatra'
+gem 'sinatra', '~> 2.2'
 gem 'json'
 gem 'net'

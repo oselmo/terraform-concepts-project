@@ -22,7 +22,7 @@ resource "aws_launch_template" "app" {
         yum install -y httpd wget unzip
         
         # Install NodeJS
-        curl -sL https://rpm.nodesource.com/setup_18.x | bash -
+        curl -sL https://rpm.nodesource.com/setup_16.x | bash -
         yum install -y nodejs
 
         # Verify installation
@@ -30,8 +30,9 @@ resource "aws_launch_template" "app" {
         npm -v
 
         # Install Ruby and Bundler
-        amazon-linux-extras install -y ruby3.2
-        gem install bundler
+        amazon-linux-extras install -y ruby2.6
+        gem install bundler -v 2.3.27
+
 
         # Verify installation
         ruby --version

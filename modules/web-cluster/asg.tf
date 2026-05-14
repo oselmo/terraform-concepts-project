@@ -21,6 +21,13 @@ resource "aws_autoscaling_group" "app_asg" {
   lifecycle {
     create_before_destroy = true
   }
+
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 0
+    }
+}
 }
 
 # Auto Scaling Policies
