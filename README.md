@@ -21,6 +21,10 @@ Move the current ALB + ASG + launch template + security groups into `modules/web
 - Min/max capacity
 - Port
 
+Also include an IAM role and instance profile so EC2 instances have the permissions they need to be managed without requiring direct SSH access.
+
+Configure the ASG with a rolling update strategy so that when the launch template changes, instances are replaced automatically rather than requiring manual intervention. Make sure the ASG's launch template version reference actually triggers this refresh when a new version is created.
+
 This demonstrates the DRY (Don't Repeat Yourself) principle applied to infrastructure.
 
 ### 2. Add a `networking` Module
@@ -67,12 +71,12 @@ The `launch_template.tf` user_data script is updated to:
 ```
 terraform-concepts-project/
 ├── app/
-│   ├── backend/            # Sinatra API (server.rb, Gemfile)
-│   └── frontend/           # React app (src/App.jsx, package.json)
+│   ├── backend/            # Sinatra API
+│   └── frontend/           # React app
 ├── bootstrap/              # S3 + DynamoDB for remote state
 ├── modules/
 │   ├── networking/         # VPC, subnets, IGW, NAT gateway, route tables
-│   └── web-cluster/        # ALB, ASG, launch template, security groups, CloudWatch
+│   └── web-cluster/        # ALB, ASG, launch template, security groups, CloudWatch, IAM
 └── environments/
     ├── dev/
     ├── staging/
