@@ -61,7 +61,7 @@ GET /api/info → { environment, instance_id, availability_zone, region }
 
 The `launch_template.tf` user_data script is updated to:
 1. Install Ruby + Bundler and start Sinatra on a local port
-2. Install Node.js, build the React app to static files
+2. Install Node.js, install frontend dependencies, and use Vite to build the React app to static files
 3. Configure Apache to serve the React build and proxy `/api/*` to Sinatra
 
 ---
